@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,15 +24,26 @@ public class MainActivity extends AppCompatActivity {
     private TextView latitudeTextView;
     private TextView longitudeTextView;
 
+    private Handler handler = new Handler();
+    private final int LOCATION_UPDATE_INTERVAL_MINUTES = 10;
+
+    private Runnable locationUpdaterRunnable = new Runnable() {
+        @Override
+        public void run() {
+            startLocationUpdates();
+            handler.postDelayed(this, LOCATION_UPDATE_INTERVAL_MINUTES * 60 * 1000); // Convert minutes to milliseconds
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //FusedLocationProviderClient
+        // Initialize the FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        //TextViews for displaying latitude and longitude
+        // TextViews for displaying latitude and longitude
         latitudeTextView = findViewById(R.id.latitudeTextView);
         longitudeTextView = findViewById(R.id.longitudeTextView);
 
@@ -73,5 +85,19 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Permission denied. Cannot access location.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Start periodic location updates
+        handler.post(locationUpdaterRunnable);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Stop periodic location updates when the activity is paused
+        handler.removeCallbacks(locationUpdaterRunnable);
     }
 }
