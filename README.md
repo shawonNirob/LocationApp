@@ -1,4 +1,4 @@
-##Location App**
+##Location App
 
 ###Introduction
 The Location App is an Android application that:
@@ -24,9 +24,9 @@ The Location App is an Android application that:
 4. Periodic Updates:
     Updates the user's location every 10 minutes using a Handler.
 
-##Tools & Technologies
-   Android Studio: Development IDE.
-   Java: Programming language for app logic.
-   MVVM Architecture: Clean separation of concerns.
-   Google Maps SDK: For displaying the map.
-   FusedLocationProviderClient: For fetching location data.
+## **Tools & Technologies**
+- **Android Studio**: Development IDE.
+- **Java**: Programming language for app logic.
+- **MVVM Architecture**: Clean separation of concerns.
+- **Google Maps SDK**: For displaying the map.
+- **FusedLocationProviderClient**: For fetching location data.
