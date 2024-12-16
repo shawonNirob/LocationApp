@@ -1,6 +1,7 @@
 package com.android.locationapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -15,14 +16,22 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
     private TextView latitudeTextView;
     private TextView longitudeTextView;
+
+    private GoogleMap googleMap;
 
     private Handler handler = new Handler();
     private final int LOCATION_UPDATE_INTERVAL_MINUTES = 10;
@@ -47,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
         latitudeTextView = findViewById(R.id.latitudeTextView);
         longitudeTextView = findViewById(R.id.longitudeTextView);
 
+        // Initialize map fragment
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
+
         // Check and request permissions if necessary
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
@@ -55,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
         // Fetch the last known location
         fusedLocationClient.getLastLocation()
@@ -67,11 +83,29 @@ public class MainActivity extends AppCompatActivity {
                             double longitude = location.getLongitude();
                             latitudeTextView.setText("Latitude: " + latitude);
                             longitudeTextView.setText("Longitude: " + longitude);
+
+                            // Update the map
+                            if (googleMap != null) {
+                                LatLng userLocation = new LatLng(latitude, longitude);
+                                googleMap.clear(); // Clear any previous markers
+                                googleMap.addMarker(new MarkerOptions().position(userLocation).title("You are here"));
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
+                            }
                         } else {
                             Toast.makeText(MainActivity.this, "Location not available", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
+
+        // Check if location permission is granted, and enable the user's location on the map
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            googleMap.setMyLocationEnabled(true);
+        }
     }
 
     @Override

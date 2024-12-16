@@ -1,10 +1,3 @@
 <resources>
     <string name="app_name">LocationApp</string>
-    <string name="latitude_label">Latitude: </string>
-    <string name="longitude_label">Longitude: </string>
-
-    <!-- String for Allow Permission Button -->
-    <string name="allow_permission_button">Allow Location Permission</string>
-
-    <string name="google_maps_key">AIzaSyBPRxifuJfUE79L86vo4gM0KYLtbi0ItRk</string>
 </resources>
